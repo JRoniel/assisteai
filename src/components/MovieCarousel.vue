@@ -8,12 +8,19 @@
       <div class="movie-card" v-for="movie in movies" :key="movie.title" @mouseover="hover = movie.title"
         @mouseleave="hover = ''">
         <div class="movie-poster">
-          <img :src="`https://image.tmdb.org/t/p/w500${movie.poster}`" :alt="movie.title" />
+          <img :src="movie.poster" :alt="movie.title" />
 
 
           <!-- Botão de remover ao passar o mouse -->
-          <button v-if="hover === movie.title" class="remove-button" @click="addToWatchlist(movie)">
+
+
+          <button v-if="!watchlist.some(item => item.id === movie.id)" @click="addToWatchlist(movie)"
+            class="remove-button">
             Assistir depois
+          </button>
+
+          <button v-else>
+            ✔ Na lista
           </button>
 
         </div>
@@ -42,16 +49,21 @@ export default {
   methods: {
     async fetchMovies() {
       try {
-        const response = await fetch('http://localhost:3000/api');
+        const API_KEY = "API_KEY";
+        const url = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=pt-BR&page=1`;
+
+        const response = await fetch(url);
         const data = await response.json();
 
-        this.movies = data.map(movie => ({
+        this.movies = data.results.map(movie => ({
+          id: movie.id,
           title: movie.title,
-          poster: movie.poster,
+          poster: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
           release_date: movie.release_date.slice(0, 4)
         }));
+
       } catch (error) {
-        console.error('Erro ao buscar filmes:', error);
+        console.error("Erro ao buscar filmes:", error);
       }
     },
     loadWatchlist() {
@@ -80,14 +92,17 @@ export default {
       }
     },
     addToWatchlist(movie) {
-      const watchlist = [...this.watchlist];
-      if (!watchlist.some(item => item.title === movie.title)) {
-        watchlist.push(movie);
-        localStorage.setItem('watchlist', JSON.stringify(watchlist));
-        console.log(`${movie.title} adicionado à lista de "quero assistir".`);
-        this.loadWatchlist();
-      } else {
-        console.log(`${movie.title} j  est  na lista de "quero assistir".`);
+
+      if (!this.watchlist.some(item => item.id === movie.id)) {
+
+        this.watchlist.push(movie)
+
+        localStorage.setItem(
+          'watchlist',
+          JSON.stringify(this.watchlist)
+        )
+
+        this.$emit("watchlist-updated") // 👈 avisa outros componentes
       }
     },
     markAsWatched(movie) {

@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <AppNavbar />
-    <MovieCarousel />
-    <WarchList />
+    <MovieCarousel @watchlist-updated="updateWatchlist"/>
+<WarchList ref="watchlistComponent"/>
     <SearchContainer />
   </div>
 </template>

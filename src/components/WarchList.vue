@@ -38,8 +38,10 @@ export default {
     this.loadWatchlist(); // Carrega a watchlist ao montar o componente
   },
   methods: {
-
-
+    updateWatchlist() {
+    this.$refs.watchlistComponent.loadWatchlist()
+  },
+ /*
     updateWatchlist(newMovie) {
       if (!this.watchlist.some(movie => movie.title === newMovie.title)) {
         this.watchlist.push(newMovie);
@@ -48,7 +50,7 @@ export default {
       } else {
         console.log(`${newMovie.title} já  está  na watchlist.`);
       }
-    },
+    },*/
 
     resetList() {
       localStorage.removeItem('watchlist');
